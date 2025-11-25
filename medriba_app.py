@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
 
+
 # ===========================
 # PAGE CONFIGURATION
 # ===========================
@@ -47,7 +48,7 @@ def load_custom_css():
     
     /* Custom header styling */
     .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background:darkblue;
         padding: 2rem;
         border-radius: 10px;
         color: white;
@@ -69,7 +70,7 @@ def load_custom_css():
     
     /* Card styling */
     .prediction-card {
-        background: white;
+        background: #667eea;
         padding: 2rem;
         border-radius: 10px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -132,7 +133,7 @@ def load_custom_css():
     
     /* Metric cards */
     .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #667eea;
         padding: 1.5rem;
         border-radius: 10px;
         color: white;
@@ -167,7 +168,7 @@ def load_custom_css():
     
     /* Info boxes */
     .info-box {
-        background: #dbeafe;
+        background: #230141;
         border-left: 4px solid #3b82f6;
         padding: 1rem;
         border-radius: 5px;
@@ -345,6 +346,7 @@ def create_probability_chart(probability, labels):
     )
     
     return fig
+    
 
 def create_feature_importance_chart(feature_importance, top_n=10):
     """Create feature importance horizontal bar chart"""
@@ -364,15 +366,40 @@ def create_feature_importance_chart(feature_importance, top_n=10):
     ))
     
     fig.update_layout(
-        title=f"Top {top_n} Feature Importance",
-        xaxis_title="Importance Score",
-        yaxis_title="Features",
-        height=400,
-        margin=dict(l=20, r=20, t=50, b=20),
-        paper_bgcolor="white",
-        plot_bgcolor="white",
-        font={'family': "Arial"}
-    )
+    title={
+        'text': f"Top {top_n} Feature Importance",
+        'font': {'color': 'black'}
+    },
+    xaxis={
+        'title': {
+            'text': "Importance Score",
+            'font': {'color': 'black'}
+        },
+        'tickfont': {'color': 'black'}
+    },
+    yaxis={
+        'title': {
+            'text': "Features",
+            'font': {'color': 'black'}
+        },
+        'tickfont': {'color': 'black'}
+    },
+    height=400,
+    margin=dict(l=20, r=20, t=50, b=20),
+    paper_bgcolor="white",
+    plot_bgcolor="white",
+    font={'family': "Arial", 'color': "black"}
+)
+# fig.update_layout(
+#         title=f"Top {top_n} Feature Importance",
+#         xaxis_title="Importance Score",
+#         yaxis_title="Features",
+#         height=400,
+#         margin=dict(l=20, r=20, t=50, b=20),
+#         paper_bgcolor="white",
+#         plot_bgcolor="white",
+#         font={'family': "Arial", 'color': "black"}
+#     )
     
     fig.update_yaxes(autorange="reversed")
     
