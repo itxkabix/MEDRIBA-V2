@@ -1,5 +1,5 @@
-# 🏥 MEDRIBA - Multi-Model Expert Digital Responsive Intelligent Bio-health Assistant
-
+# 🏥 MEDRIBA - Multi-Model Expert Data-driven Risk Identification & Bio-health Analytics
+ 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.31.0-red.svg)](https://streamlit.io/)
 [![XGBoost](https://img.shields.io/badge/XGBoost-2.0.3-orange.svg)](https://xgboost.readthedocs.io/)
