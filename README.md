@@ -91,6 +91,11 @@ medriba/
 ```
 
 ---
+### Create a `.env` file in the root directory and add your Pinecone & openai credentials as follows:
+
+```ini
+GEMINI_API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
 
 ## 🎯 Model Performance
 

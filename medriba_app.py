@@ -742,7 +742,7 @@ def main():
                 'chol': chol,
                 'fbs': fbs_val,
                 'restecg': restecg_val,
-                'thalach': thalach,
+                'maxheartrate': thalach,
                 'exang': exang_val,
                 'oldpeak': oldpeak,
                 'slope': slope_val,
