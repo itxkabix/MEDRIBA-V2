@@ -21,7 +21,7 @@ from datetime import datetime
 # PAGE CONFIGURATION
 # ===========================
 st.set_page_config(
-    page_title="MEDRIBA - AI Health Assistant",
+    page_title="MEDRIBA ",
     page_icon="🏥",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -290,7 +290,7 @@ def create_confidence_gauge(confidence):
         mode="gauge+number",
         value=confidence,
         domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': "Confidence Level", 'font': {'size': 24}},
+        title={'text': "Confidence Level", 'font': {'size': 24, 'color': "darkblue"}},
         gauge={
             'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkblue"},
             'bar': {'color': "darkblue"},
@@ -1014,12 +1014,16 @@ def main():
             st.success("✅ All research guidelines successfully implemented!")
     
     # Footer
+    
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; color: #64748b; padding: 2rem;">
         <p><strong>MEDRIBA</strong> - Multi-Model Expert Digital Responsive Intelligent Bio-health Assistant</p>
         <p>Research-Based AI Healthcare Solution | Developed by itxkabix</p>
-        <p>⚕️ For educational and research purposes only. Always consult healthcare professionals for medical decisions.</p>
+        <p>⚕️ For educational and research purposes only. Always consult healthcare professionals for medical decisions.
+         <a href="https://github.com/itxkabix/" target="_blank" style="color: #3b82f6; text-decoration: none;"><img src="https://img.icons8.com/ios-glyphs/24/000000/github.png" style="vertical-align:middle; margin-right:5px;">GitHub</a>
+        &nbsp;&nbsp;
+        <a href="https://www.linkedin.com/in/itxkabix" target="_blank" style="color: #0077b5; text-decoration: none;"><img src="https://img.icons8.com/color/24/000000/linkedin.png" style="vertical-align:middle; margin-right:5px;">LinkedIn</a></p>
     </div>
     """, unsafe_allow_html=True)
 
