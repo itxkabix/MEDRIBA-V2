@@ -1,5 +1,5 @@
 """
-MEDRIBA - Multi-Model Expert Digital Responsive Intelligent Bio-health Assistant
+MEDRIBA - Multi-Model Expert Data-driven Risk Identification & Bio-health Analytics
 Production-Ready Streamlit Application
 Research-Based Implementation with XGBoost & Random Forest
 """
@@ -21,8 +21,8 @@ from datetime import datetime
 # PAGE CONFIGURATION
 # ===========================
 st.set_page_config(
-    page_title="MEDRIBA ",
-    page_icon="🏥",
+    page_title="Medriba ",
+    page_icon="⚕️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -411,8 +411,8 @@ def create_feature_importance_chart(feature_importance, top_n=10):
 def display_header():
     st.markdown("""
     <div class="main-header">
-        <h1>🏥 MEDRIBA</h1>
-        <p><strong>Multi-Model Expert Digital Responsive Intelligent Bio-health Assistant</strong></p>
+        <h1>⚕️ MEDRIBA</h1>
+        <p><strong> Multi-Model Expert Data-driven Risk Identification & Bio-health Analytics</strong></p>
         <p>Research-Based AI for Diabetes & Heart Disease Prediction | Accuracy: 95-97%</p>
     </div>
     """, unsafe_allow_html=True)
@@ -466,7 +466,7 @@ def main():
         
         st.markdown("---")
         st.markdown("### 👨‍💻 Developer")
-        st.info("**itxkabix**\nMCA Data Science Student\n🔬 Research-Based Implementation")
+        st.info("**Kabir Ahmed 🧑‍⚕️**\n \nMCA Data Science Student\n Research-Based Implementation")
     
     # ===========================
     # HOME PAGE
@@ -1018,12 +1018,14 @@ def main():
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; color: #64748b; padding: 2rem;">
-        <p><strong>MEDRIBA</strong> - Multi-Model Expert Digital Responsive Intelligent Bio-health Assistant</p>
+        <p><strong>MEDRIBA</strong> - Multi-Model Expert Data-driven Risk Identification & Bio-health Analytics</p>
         <p>Research-Based AI Healthcare Solution | Developed by itxkabix</p>
         <p>⚕️ For educational and research purposes only. Always consult healthcare professionals for medical decisions.
          <a href="https://github.com/itxkabix/" target="_blank" style="color: #3b82f6; text-decoration: none;"><img src="https://img.icons8.com/ios-glyphs/24/000000/github.png" style="vertical-align:middle; margin-right:5px;">GitHub</a>
         &nbsp;&nbsp;
-        <a href="https://www.linkedin.com/in/itxkabix" target="_blank" style="color: #0077b5; text-decoration: none;"><img src="https://img.icons8.com/color/24/000000/linkedin.png" style="vertical-align:middle; margin-right:5px;">LinkedIn</a></p>
+        <a href="https://www.linkedin.com/in/itxkabix" target="_blank" style="color: #0077b5; text-decoration: none;"><img src="https://img.icons8.com/color/24/000000/linkedin.png" style="vertical-align:middle; margin-right:5px;">LinkedIn</a>
+        <a href="https://www.instagram.com/itxkabix/" target="_blank" style="color: #0077b5; text-decoration: none;"><img src="https://img.icons8.com/color/24/000000/instagram.png" style="vertical-align:middle; margin-right:5px;">Instagram</a>
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
