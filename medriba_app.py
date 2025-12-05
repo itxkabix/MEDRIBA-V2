@@ -390,16 +390,6 @@ def create_feature_importance_chart(feature_importance, top_n=10):
     plot_bgcolor="white",
     font={'family': "Arial", 'color': "black"}
 )
-# fig.update_layout(
-#         title=f"Top {top_n} Feature Importance",
-#         xaxis_title="Importance Score",
-#         yaxis_title="Features",
-#         height=400,
-#         margin=dict(l=20, r=20, t=50, b=20),
-#         paper_bgcolor="white",
-#         plot_bgcolor="white",
-#         font={'family': "Arial", 'color': "black"}
-#     )
     
     fig.update_yaxes(autorange="reversed")
     
@@ -560,18 +550,60 @@ def main():
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                pregnancies = st.number_input("Number of Pregnancies", min_value=0, max_value=20, value=0, help="Number of times pregnant")
-                glucose = st.number_input("Glucose Level (mg/dL)", min_value=0, max_value=300, value=120, help="Plasma glucose concentration")
-                blood_pressure = st.number_input("Blood Pressure (mm Hg)", min_value=0, max_value=200, value=70, help="Diastolic blood pressure")
+                pregnancies = st.number_input(
+                    "Number of Pregnancies (e.g. 0)",
+                    min_value=0,
+                    max_value=20,
+                    help="Number of times pregnant"
+                )
+                glucose = st.number_input(
+                    "Glucose Level (mg/dL) (e.g. 120)",
+                    min_value=0,
+                    max_value=300,
+                    help="Plasma glucose concentration"
+                )
+                blood_pressure = st.number_input(
+                    "Blood Pressure (mm Hg) (e.g. 70)",
+                    min_value=0,
+                    max_value=200,
+                    help="Diastolic blood pressure"
+                )
             
             with col2:
-                skin_thickness = st.number_input("Skin Thickness (mm)", min_value=0, max_value=100, value=20, help="Triceps skin fold thickness")
-                insulin = st.number_input("Insulin Level (μU/mL)", min_value=0, max_value=900, value=80, help="2-Hour serum insulin")
-                bmi = st.number_input("BMI", min_value=0.0, max_value=70.0, value=25.0, step=0.1, help="Body mass index")
+                skin_thickness = st.number_input(
+                    "Skin Thickness (mm) (e.g. 20)",
+                    min_value=0,
+                    max_value=100,
+                    help="Triceps skin fold thickness"
+                )
+                insulin = st.number_input(
+                    "Insulin Level (μU/mL) (e.g. 80)",
+                    min_value=0,
+                    max_value=900,
+                    help="2-Hour serum insulin"
+                )
+                bmi = st.number_input(
+                    "BMI (e.g. 25.0)",
+                    min_value=0.0,
+                    max_value=70.0,
+                    step=0.1,
+                    help="Body mass index"
+                )
             
             with col3:
-                dpf = st.number_input("Diabetes Pedigree Function", min_value=0.0, max_value=3.0, value=0.5, step=0.01, help="Genetic diabetes likelihood")
-                age = st.number_input("Age (years)", min_value=1, max_value=120, value=30, help="Age in years")
+                dpf = st.number_input(
+                    "Diabetes Pedigree Function (e.g. 0.5)",
+                    min_value=0.0,
+                    max_value=3.0,
+                    step=0.01,
+                    help="Genetic diabetes likelihood"
+                )
+                age = st.number_input(
+                    "Age (years) (e.g. 30)",
+                    min_value=1,
+                    max_value=120,
+                    help="Age in years"
+                )
             
             # Engineered features (auto-calculated)
             glucose_bmi = glucose * bmi
@@ -695,7 +727,12 @@ def main():
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                age = st.number_input("Age (years)", min_value=1, max_value=120, value=50, help="Patient age")
+                age = st.number_input(
+                    "Age (years) (e.g. 50)",
+                    min_value=1,
+                    max_value=120,
+                    help="Patient age"
+                )
                 sex = st.selectbox("Sex", options=[("Male", 1), ("Female", 0)], format_func=lambda x: x[0], help="Patient sex")
                 cp = st.selectbox("Chest Pain Type", options=[
                     ("Typical Angina", 0),
@@ -703,8 +740,18 @@ def main():
                     ("Non-anginal Pain", 2),
                     ("Asymptomatic", 3)
                 ], format_func=lambda x: x[0], help="Type of chest pain")
-                trestbps = st.number_input("Resting Blood Pressure (mm Hg)", min_value=0, max_value=300, value=120, help="Resting blood pressure")
-                chol = st.number_input("Serum Cholesterol (mg/dL)", min_value=0, max_value=600, value=200, help="Serum cholesterol level")
+                trestbps = st.number_input(
+                    "Resting Blood Pressure (mm Hg) (e.g. 120)",
+                    min_value=0,
+                    max_value=300,
+                    help="Resting blood pressure"
+                )
+                chol = st.number_input(
+                    "Serum Cholesterol (mg/dL) (e.g. 200)",
+                    min_value=0,
+                    max_value=600,
+                    help="Serum cholesterol level"
+                )
             
             with col2:
                 fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dL", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])
@@ -713,17 +760,33 @@ def main():
                     ("ST-T Abnormality", 1),
                     ("LV Hypertrophy", 2)
                 ], format_func=lambda x: x[0], help="Resting electrocardiographic results")
-                thalach = st.number_input("Max Heart Rate", min_value=0, max_value=250, value=150, help="Maximum heart rate achieved")
+                thalach = st.number_input(
+                    "Max Heart Rate (e.g. 150)",
+                    min_value=0,
+                    max_value=250,
+                    help="Maximum heart rate achieved"
+                )
                 exang = st.selectbox("Exercise Induced Angina", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])
             
             with col3:
-                oldpeak = st.number_input("ST Depression", min_value=0.0, max_value=10.0, value=0.0, step=0.1, help="ST depression induced by exercise")
+                oldpeak = st.number_input(
+                    "ST Depression (e.g. 0.0)",
+                    min_value=0.0,
+                    max_value=10.0,
+                    step=0.1,
+                    help="ST depression induced by exercise"
+                )
                 slope = st.selectbox("Slope of Peak Exercise ST", options=[
                     ("Upsloping", 0),
                     ("Flat", 1),
                     ("Downsloping", 2)
                 ], format_func=lambda x: x[0])
-                ca = st.number_input("Major Vessels (0-3)", min_value=0, max_value=3, value=0, help="Number of major vessels colored by fluoroscopy")
+                ca = st.number_input(
+                    "Major Vessels (0-3) (e.g. 0)",
+                    min_value=0,
+                    max_value=3,
+                    help="Number of major vessels colored by fluoroscopy"
+                )
                 thal = st.selectbox("Thalassemia", options=[
                     ("Normal", 1),
                     ("Fixed Defect", 2),
