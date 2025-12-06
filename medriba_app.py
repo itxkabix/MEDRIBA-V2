@@ -16,14 +16,6 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
 
-from io import BytesIO
-from typing import List, Optional
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import mm
-from reportlab.lib import colors
-from reportlab.lib.utils import ImageReader
-
 
 # ===========================
 # PAGE CONFIGURATION
@@ -181,7 +173,6 @@ def load_custom_css():
         padding: 1rem;
         border-radius: 5px;
         margin: 1rem 0;
-        color: white;
     }
     
     /* Confidence gauge styling */
@@ -201,149 +192,6 @@ def load_custom_css():
     }
     </style>
     """, unsafe_allow_html=True)
-
-
-# ===========================
-# PDF REPORT BUILDER
-# ===========================
-def generate_pdf_report(
-    disease_name: str,
-    input_data: dict,
-    result: dict,
-    labels: List[str],
-    patient_id: Optional[str] = None,
-    patient_name: Optional[str] = None,
-) -> bytes:
-    """
-    Build a nicely formatted PDF report using ReportLab.
-    Returns raw PDF bytes suitable for st.download_button.
-    """
-    buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-
-    # Margins
-    left_margin = 25 * mm
-    right_margin = width - 25 * mm
-    top_margin = height - 25 * mm
-    bottom_margin = 20 * mm
-
-    # ---------------- HEADER BAR ----------------
-    c.setFillColor(colors.HexColor("#1e3a8a"))
-    c.rect(0, height - 60, width, 60, fill=True, stroke=False)
-
-    # Logo (optional)
-    logo_y = height - 55
-    try:
-        # Place a logo called "medriba_logo.png" in the same folder
-        logo = ImageReader("medriba_logo.png")
-        c.drawImage(logo, left_margin, logo_y, width=40, height=40,
-                    preserveAspectRatio=True, mask="auto")
-        text_x = left_margin + 50
-    except Exception:
-        text_x = left_margin
-
-    # Header text
-    c.setFillColor(colors.white)
-    c.setFont("Helvetica-Bold", 18)
-    c.drawString(text_x, height - 35, "MEDRIBA")
-
-    c.setFont("Helvetica", 10)
-    c.drawString(
-        text_x,
-        height - 50,
-        "Multi-Model Expert Data-driven Risk Identification & Bio-health Analytics",
-    )
-
-    # ---------------- META INFO ----------------
-    y = top_margin - 80
-    c.setFillColor(colors.black)
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(left_margin, y, f"{disease_name} Risk Prediction Report")
-
-    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    c.setFont("Helvetica", 9)
-    y -= 15
-    c.drawString(left_margin, y, f"Generated At: {now_str}")
-    y -= 15
-    c.drawString(left_margin, y, f"Patient ID: {patient_id if patient_id else 'N/A'}")
-    y -= 15
-    c.drawString(left_margin, y, f"Patient Name: {patient_name if patient_name else 'N/A'}")
-
-    # ---------------- PREDICTION SUMMARY ----------------
-    y -= 25
-    c.setFont("Helvetica-Bold", 11)
-    c.setFillColor(colors.HexColor("#1e3a8a"))
-    c.drawString(left_margin, y, "Prediction Summary")
-
-    c.setLineWidth(0.5)
-    c.setStrokeColor(colors.HexColor("#1e3a8a"))
-    y -= 5
-    c.line(left_margin, y, right_margin, y)
-    y -= 15
-
-    c.setFont("Helvetica", 10)
-    c.setFillColor(colors.black)
-
-    prediction_label = labels[result["prediction"]]
-    c.drawString(left_margin, y, f"Predicted Class : {prediction_label}")
-    y -= 15
-    c.drawString(left_margin, y, f"Confidence      : {result['confidence']:.2f}%")
-    y -= 20
-
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(left_margin, y, "Probability Distribution:")
-    y -= 15
-    c.setFont("Helvetica", 10)
-
-    for idx, p in enumerate(result["probability"]):
-        c.drawString(left_margin + 15, y, f"- {labels[idx]}: {p * 100:.2f}%")
-        y -= 15
-
-    # ---------------- INPUT FEATURES ----------------
-    y -= 10
-    c.setFont("Helvetica-Bold", 11)
-    c.setFillColor(colors.HexColor("#1e3a8a"))
-    c.drawString(left_margin, y, "Input Features")
-    y -= 5
-    c.setStrokeColor(colors.HexColor("#1e3a8a"))
-    c.line(left_margin, y, right_margin, y)
-    y -= 15
-
-    c.setFont("Helvetica", 9)
-    c.setFillColor(colors.black)
-
-    for k, v in input_data.items():
-        text_line = f"- {k}: {v}"
-        if y < bottom_margin:
-            c.showPage()
-            y = top_margin
-            c.setFont("Helvetica", 9)
-        c.drawString(left_margin, y, text_line)
-        y -= 12
-
-    # ---------------- FOOTER NOTE ----------------
-    if y < bottom_margin + 40:
-        c.showPage()
-        y = top_margin
-
-    y = bottom_margin
-    c.setFont("Helvetica-Oblique", 8)
-    c.setFillColor(colors.grey)
-    c.drawString(
-        left_margin,
-        y,
-        "This report is generated for educational and research purposes only. "
-        "Always consult qualified healthcare professionals for medical decisions.",
-    )
-
-    c.showPage()
-    c.save()
-
-    pdf_bytes = buffer.getvalue()
-    buffer.close()
-    return pdf_bytes
-
 
 # ===========================
 # LOAD MODELS AND SCALERS
@@ -369,7 +217,6 @@ def load_models():
     except Exception as e:
         st.error(f"Error loading models: {e}")
         return None
-
 
 # ===========================
 # PREDICTION FUNCTIONS
@@ -404,7 +251,6 @@ def predict_diabetes(input_data, models):
         'feature_importance': feature_importance
     }
 
-
 def predict_heart_disease(input_data, models):
     """
     Predict heart disease with confidence intervals and feature importance
@@ -434,7 +280,6 @@ def predict_heart_disease(input_data, models):
         'confidence': probability[prediction] * 100,
         'feature_importance': feature_importance
     }
-
 
 # ===========================
 # VISUALIZATION FUNCTIONS
@@ -473,7 +318,6 @@ def create_confidence_gauge(confidence):
     )
     
     return fig
-
 
 def create_probability_chart(probability, labels):
     """Create probability distribution chart"""
@@ -522,35 +366,34 @@ def create_feature_importance_chart(feature_importance, top_n=10):
     ))
     
     fig.update_layout(
-        title={
-            'text': f"Top {top_n} Feature Importance",
+    title={
+        'text': f"Top {top_n} Feature Importance",
+        'font': {'color': 'black'}
+    },
+    xaxis={
+        'title': {
+            'text': "Importance Score",
             'font': {'color': 'black'}
         },
-        xaxis={
-            'title': {
-                'text': "Importance Score",
-                'font': {'color': 'black'}
-            },
-            'tickfont': {'color': 'black'}
+        'tickfont': {'color': 'black'}
+    },
+    yaxis={
+        'title': {
+            'text': "Features",
+            'font': {'color': 'black'}
         },
-        yaxis={
-            'title': {
-                'text': "Features",
-                'font': {'color': 'black'}
-            },
-            'tickfont': {'color': 'black'}
-        },
-        height=400,
-        margin=dict(l=20, r=20, t=50, b=20),
-        paper_bgcolor="white",
-        plot_bgcolor="white",
-        font={'family': "Arial", 'color': "black"}
-    )
+        'tickfont': {'color': 'black'}
+    },
+    height=400,
+    margin=dict(l=20, r=20, t=50, b=20),
+    paper_bgcolor="white",
+    plot_bgcolor="white",
+    font={'family': "Arial", 'color': "black"}
+)
     
     fig.update_yaxes(autorange="reversed")
     
     return fig
-
 
 # ===========================
 # HEADER
@@ -563,7 +406,6 @@ def display_header():
         <p>Research-Based AI for Diabetes & Heart Disease Prediction | Accuracy: 95-97%</p>
     </div>
     """, unsafe_allow_html=True)
-
 
 # ===========================
 # MAIN APPLICATION
@@ -705,12 +547,6 @@ def main():
         
         # Create input form
         with st.form("diabetes_form"):
-            # Patient details
-            st.markdown("#### 🧍‍♂️ Patient Details")
-            patient_id_diab = st.text_input("Patient ID (optional)", placeholder="e.g. PT-2025-001")
-            patient_name_diab = st.text_input("Patient Name (optional)", placeholder="e.g. John Doe")
-            st.markdown("---")
-
             col1, col2, col3 = st.columns(3)
             
             with col1:
@@ -878,24 +714,6 @@ def main():
                 These factors had the most significant impact on the prediction. Higher values indicate greater influence on the model's decision.
             </div>
             """, unsafe_allow_html=True)
-
-            # -------- DOWNLOAD REPORT BUTTON (DIABETES - PDF) --------
-            st.markdown("### 📥 Download Detailed Diabetes Report (PDF)")
-            diabetes_pdf = generate_pdf_report(
-                disease_name="Diabetes",
-                input_data=input_data,
-                result=result,
-                labels=["No Diabetes", "Diabetes"],
-                patient_id=patient_id_diab,
-                patient_name=patient_name_diab,
-            )
-            st.download_button(
-                label="Download Diabetes Report (.pdf)",
-                data=diabetes_pdf,
-                file_name=f"medriba_diabetes_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-                mime="application/pdf",
-                use_container_width=True,
-            )
     
     # ===========================
     # HEART DISEASE PREDICTION PAGE
@@ -906,12 +724,6 @@ def main():
         
         # Create input form
         with st.form("heart_form"):
-            # Patient details
-            st.markdown("#### 🧍‍♀️ Patient Details")
-            patient_id_heart = st.text_input("Patient ID (optional)", placeholder="e.g. PT-2025-002")
-            patient_name_heart = st.text_input("Patient Name (optional)", placeholder="e.g. Jane Doe")
-            st.markdown("---")
-
             col1, col2, col3 = st.columns(3)
             
             with col1:
@@ -921,23 +733,13 @@ def main():
                     max_value=120,
                     help="Patient age"
                 )
-                sex = st.selectbox(
-                    "Sex",
-                    options=[("Male", 1), ("Female", 0)],
-                    format_func=lambda x: x[0],
-                    help="Patient sex"
-                )
-                cp = st.selectbox(
-                    "Chest Pain Type",
-                    options=[
-                        ("Typical Angina", 0),
-                        ("Atypical Angina", 1),
-                        ("Non-anginal Pain", 2),
-                        ("Asymptomatic", 3)
-                    ],
-                    format_func=lambda x: x[0],
-                    help="Type of chest pain"
-                )
+                sex = st.selectbox("Sex", options=[("Male", 1), ("Female", 0)], format_func=lambda x: x[0], help="Patient sex")
+                cp = st.selectbox("Chest Pain Type", options=[
+                    ("Typical Angina", 0),
+                    ("Atypical Angina", 1),
+                    ("Non-anginal Pain", 2),
+                    ("Asymptomatic", 3)
+                ], format_func=lambda x: x[0], help="Type of chest pain")
                 trestbps = st.number_input(
                     "Resting Blood Pressure (mm Hg) (e.g. 120)",
                     min_value=0,
@@ -952,32 +754,19 @@ def main():
                 )
             
             with col2:
-                fbs = st.selectbox(
-                    "Fasting Blood Sugar > 120 mg/dL",
-                    options=[("No", 0), ("Yes", 1)],
-                    format_func=lambda x: x[0]
-                )
-                restecg = st.selectbox(
-                    "Resting ECG",
-                    options=[
-                        ("Normal", 0),
-                        ("ST-T Abnormality", 1),
-                        ("LV Hypertrophy", 2)
-                    ],
-                    format_func=lambda x: x[0],
-                    help="Resting electrocardiographic results"
-                )
+                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dL", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])
+                restecg = st.selectbox("Resting ECG", options=[
+                    ("Normal", 0),
+                    ("ST-T Abnormality", 1),
+                    ("LV Hypertrophy", 2)
+                ], format_func=lambda x: x[0], help="Resting electrocardiographic results")
                 thalach = st.number_input(
                     "Max Heart Rate (e.g. 150)",
                     min_value=0,
                     max_value=250,
                     help="Maximum heart rate achieved"
                 )
-                exang = st.selectbox(
-                    "Exercise Induced Angina",
-                    options=[("No", 0), ("Yes", 1)],
-                    format_func=lambda x: x[0]
-                )
+                exang = st.selectbox("Exercise Induced Angina", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])
             
             with col3:
                 oldpeak = st.number_input(
@@ -987,35 +776,24 @@ def main():
                     step=0.1,
                     help="ST depression induced by exercise"
                 )
-                slope = st.selectbox(
-                    "Slope of Peak Exercise ST",
-                    options=[
-                        ("Upsloping", 0),
-                        ("Flat", 1),
-                        ("Downsloping", 2)
-                    ],
-                    format_func=lambda x: x[0]
-                )
+                slope = st.selectbox("Slope of Peak Exercise ST", options=[
+                    ("Upsloping", 0),
+                    ("Flat", 1),
+                    ("Downsloping", 2)
+                ], format_func=lambda x: x[0])
                 ca = st.number_input(
                     "Major Vessels (0-3) (e.g. 0)",
                     min_value=0,
                     max_value=3,
                     help="Number of major vessels colored by fluoroscopy"
                 )
-                thal = st.selectbox(
-                    "Thalassemia",
-                    options=[
-                        ("Normal", 1),
-                        ("Fixed Defect", 2),
-                        ("Reversible Defect", 3)
-                    ],
-                    format_func=lambda x: x[0]
-                )
+                thal = st.selectbox("Thalassemia", options=[
+                    ("Normal", 1),
+                    ("Fixed Defect", 2),
+                    ("Reversible Defect", 3)
+                ], format_func=lambda x: x[0])
             
-            submitted = st.form_submit_button("💓 Analyze Heart Health", use_container_width=True)
-        
-        if submitted:
-            # Extract categorical values
+            # Extract values
             sex_val = sex[1]
             cp_val = cp[1]
             fbs_val = fbs[1]
@@ -1042,6 +820,9 @@ def main():
             else:
                 age_group = 3
             
+            submitted = st.form_submit_button("💓 Analyze Heart Health", use_container_width=True)
+        
+        if submitted:
             # Prepare input data
             input_data = {
                 'age': age,
@@ -1128,24 +909,6 @@ def main():
                 These cardiovascular factors had the most significant impact on the prediction. Medical attention should focus on these areas.
             </div>
             """, unsafe_allow_html=True)
-
-            # -------- DOWNLOAD REPORT BUTTON (HEART - PDF) --------
-            st.markdown("### 📥 Download Detailed Heart Disease Report (PDF)")
-            heart_pdf = generate_pdf_report(
-                disease_name="Heart Disease",
-                input_data=input_data,
-                result=result,
-                labels=["No CVD", "CVD"],
-                patient_id=patient_id_heart,
-                patient_name=patient_name_heart,
-            )
-            st.download_button(
-                label="Download Heart Disease Report (.pdf)",
-                data=heart_pdf,
-                file_name=f"medriba_heart_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-                mime="application/pdf",
-                use_container_width=True,
-            )
     
     # ===========================
     # ABOUT MODELS PAGE
@@ -1314,6 +1077,7 @@ def main():
             st.success("✅ All research guidelines successfully implemented!")
     
     # Footer
+    
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; color: #64748b; padding: 2rem;">
@@ -1327,7 +1091,6 @@ def main():
         </p>
     </div>
     """, unsafe_allow_html=True)
-
 
 if __name__ == "__main__":
     main()
