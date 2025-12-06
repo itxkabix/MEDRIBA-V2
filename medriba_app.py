@@ -173,6 +173,7 @@ def load_custom_css():
         padding: 1rem;
         border-radius: 5px;
         margin: 1rem 0;
+        color: white;
     }
     
     /* Confidence gauge styling */
@@ -192,6 +193,74 @@ def load_custom_css():
     }
     </style>
     """, unsafe_allow_html=True)
+
+
+# ===========================
+# HELPER: INPUT PARSERS
+# ===========================
+def parse_int_input(label: str, value: str, min_value: int = None, max_value: int = None) -> int:
+    if value is None or str(value).strip() == "":
+        raise ValueError(f"{label} is required.")
+    try:
+        num = int(value)
+    except ValueError:
+        raise ValueError(f"{label} must be an integer.")
+    if min_value is not None and num < min_value:
+        raise ValueError(f"{label} must be ≥ {min_value}.")
+    if max_value is not None and num > max_value:
+        raise ValueError(f"{label} must be ≤ {max_value}.")
+    return num
+
+
+def parse_float_input(label: str, value: str, min_value: float = None, max_value: float = None) -> float:
+    if value is None or str(value).strip() == "":
+        raise ValueError(f"{label} is required.")
+    try:
+        num = float(value)
+    except ValueError:
+        raise ValueError(f"{label} must be a valid number.")
+    if min_value is not None and num < min_value:
+        raise ValueError(f"{label} must be ≥ {min_value}.")
+    if max_value is not None and num > max_value:
+        raise ValueError(f"{label} must be ≤ {max_value}.")
+    return num
+
+
+# ===========================
+# HELPER: REPORT BUILDER
+# ===========================
+def build_prediction_report(disease_name: str, input_data: dict, result: dict, labels: list[str]) -> str:
+    """
+    Build a plain-text report summarizing the prediction.
+    """
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    prediction_label = labels[result["prediction"]]
+    lines = []
+    lines.append("MEDRIBA - Multi-Model Expert Data-driven Risk Identification & Bio-health Analytics")
+    lines.append("=" * 80)
+    lines.append(f"Report Type : {disease_name} Risk Prediction")
+    lines.append(f"Generated At: {now_str}")
+    lines.append("=" * 80)
+    lines.append("")
+    lines.append("PREDICTION SUMMARY")
+    lines.append("-" * 80)
+    lines.append(f"Predicted Class : {prediction_label}")
+    lines.append(f"Confidence      : {result['confidence']:.2f}%")
+    lines.append("")
+    lines.append("Probability Distribution:")
+    for idx, p in enumerate(result["probability"]):
+        lines.append(f"  - {labels[idx]}: {p * 100:.2f}%")
+    lines.append("")
+    lines.append("INPUT FEATURES")
+    lines.append("-" * 80)
+    for k, v in input_data.items():
+        lines.append(f"  - {k}: {v}")
+    lines.append("")
+    lines.append("NOTE: This report is generated for educational and research purposes only.")
+    lines.append("      Always consult qualified healthcare professionals for medical decisions.")
+    return "\n".join(lines)
+
 
 # ===========================
 # LOAD MODELS AND SCALERS
@@ -366,30 +435,30 @@ def create_feature_importance_chart(feature_importance, top_n=10):
     ))
     
     fig.update_layout(
-    title={
-        'text': f"Top {top_n} Feature Importance",
-        'font': {'color': 'black'}
-    },
-    xaxis={
-        'title': {
-            'text': "Importance Score",
+        title={
+            'text': f"Top {top_n} Feature Importance",
             'font': {'color': 'black'}
         },
-        'tickfont': {'color': 'black'}
-    },
-    yaxis={
-        'title': {
-            'text': "Features",
-            'font': {'color': 'black'}
+        xaxis={
+            'title': {
+                'text': "Importance Score",
+                'font': {'color': 'black'}
+            },
+            'tickfont': {'color': 'black'}
         },
-        'tickfont': {'color': 'black'}
-    },
-    height=400,
-    margin=dict(l=20, r=20, t=50, b=20),
-    paper_bgcolor="white",
-    plot_bgcolor="white",
-    font={'family': "Arial", 'color': "black"}
-)
+        yaxis={
+            'title': {
+                'text': "Features",
+                'font': {'color': 'black'}
+            },
+            'tickfont': {'color': 'black'}
+        },
+        height=400,
+        margin=dict(l=20, r=20, t=50, b=20),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font={'family': "Arial", 'color': "black"}
+    )
     
     fig.update_yaxes(autorange="reversed")
     
@@ -550,60 +619,67 @@ def main():
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                pregnancies = st.number_input(
-                    "Number of Pregnancies (e.g. 0)",
-                    min_value=0,
-                    max_value=20,
+                pregnancies_str = st.text_input(
+                    "Number of Pregnancies",
+                    placeholder="e.g. 0",
                     help="Number of times pregnant"
                 )
-                glucose = st.number_input(
-                    "Glucose Level (mg/dL) (e.g. 120)",
-                    min_value=0,
-                    max_value=300,
+                glucose_str = st.text_input(
+                    "Glucose Level (mg/dL)",
+                    placeholder="e.g. 120",
                     help="Plasma glucose concentration"
                 )
-                blood_pressure = st.number_input(
-                    "Blood Pressure (mm Hg) (e.g. 70)",
-                    min_value=0,
-                    max_value=200,
+                blood_pressure_str = st.text_input(
+                    "Blood Pressure (mm Hg)",
+                    placeholder="e.g. 70",
                     help="Diastolic blood pressure"
                 )
             
             with col2:
-                skin_thickness = st.number_input(
-                    "Skin Thickness (mm) (e.g. 20)",
-                    min_value=0,
-                    max_value=100,
+                skin_thickness_str = st.text_input(
+                    "Skin Thickness (mm)",
+                    placeholder="e.g. 20",
                     help="Triceps skin fold thickness"
                 )
-                insulin = st.number_input(
-                    "Insulin Level (μU/mL) (e.g. 80)",
-                    min_value=0,
-                    max_value=900,
+                insulin_str = st.text_input(
+                    "Insulin Level (μU/mL)",
+                    placeholder="e.g. 80",
                     help="2-Hour serum insulin"
                 )
-                bmi = st.number_input(
-                    "BMI (e.g. 25.0)",
-                    min_value=0.0,
-                    max_value=70.0,
-                    step=0.1,
+                bmi_str = st.text_input(
+                    "BMI",
+                    placeholder="e.g. 25.0",
                     help="Body mass index"
                 )
             
             with col3:
-                dpf = st.number_input(
-                    "Diabetes Pedigree Function (e.g. 0.5)",
-                    min_value=0.0,
-                    max_value=3.0,
-                    step=0.01,
+                dpf_str = st.text_input(
+                    "Diabetes Pedigree Function",
+                    placeholder="e.g. 0.5",
                     help="Genetic diabetes likelihood"
                 )
-                age = st.number_input(
-                    "Age (years) (e.g. 30)",
-                    min_value=1,
-                    max_value=120,
+                age_str = st.text_input(
+                    "Age (years)",
+                    placeholder="e.g. 30",
                     help="Age in years"
                 )
+            
+            submitted = st.form_submit_button("🔬 Analyze Diabetes Risk", use_container_width=True)
+        
+        if submitted:
+            # Parse and validate inputs
+            try:
+                pregnancies = parse_int_input("Number of Pregnancies", pregnancies_str, 0, 20)
+                glucose = parse_int_input("Glucose Level (mg/dL)", glucose_str, 0, 300)
+                blood_pressure = parse_int_input("Blood Pressure (mm Hg)", blood_pressure_str, 0, 200)
+                skin_thickness = parse_int_input("Skin Thickness (mm)", skin_thickness_str, 0, 100)
+                insulin = parse_int_input("Insulin Level (μU/mL)", insulin_str, 0, 900)
+                bmi = parse_float_input("BMI", bmi_str, 0.0, 70.0)
+                dpf = parse_float_input("Diabetes Pedigree Function", dpf_str, 0.0, 3.0)
+                age = parse_int_input("Age (years)", age_str, 1, 120)
+            except ValueError as e:
+                st.error(str(e))
+                st.stop()
             
             # Engineered features (auto-calculated)
             glucose_bmi = glucose * bmi
@@ -631,9 +707,6 @@ def main():
             else:
                 age_group = 3
             
-            submitted = st.form_submit_button("🔬 Analyze Diabetes Risk", use_container_width=True)
-        
-        if submitted:
             # Prepare input data with engineered features
             input_data = {
                 'Pregnancies': pregnancies,
@@ -714,6 +787,22 @@ def main():
                 These factors had the most significant impact on the prediction. Higher values indicate greater influence on the model's decision.
             </div>
             """, unsafe_allow_html=True)
+
+            # -------- DOWNLOAD REPORT BUTTON (DIABETES) --------
+            st.markdown("### 📥 Download Detailed Diabetes Report")
+            diabetes_report = build_prediction_report(
+                disease_name="Diabetes",
+                input_data=input_data,
+                result=result,
+                labels=["No Diabetes", "Diabetes"]
+            )
+            st.download_button(
+                label="Download Diabetes Report (.txt)",
+                data=diabetes_report,
+                file_name=f"medriba_diabetes_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+                mime="text/plain",
+                use_container_width=True
+            )
     
     # ===========================
     # HEART DISEASE PREDICTION PAGE
@@ -727,73 +816,100 @@ def main():
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                age = st.number_input(
-                    "Age (years) (e.g. 50)",
-                    min_value=1,
-                    max_value=120,
+                age_str = st.text_input(
+                    "Age (years)",
+                    placeholder="e.g. 50",
                     help="Patient age"
                 )
-                sex = st.selectbox("Sex", options=[("Male", 1), ("Female", 0)], format_func=lambda x: x[0], help="Patient sex")
-                cp = st.selectbox("Chest Pain Type", options=[
-                    ("Typical Angina", 0),
-                    ("Atypical Angina", 1),
-                    ("Non-anginal Pain", 2),
-                    ("Asymptomatic", 3)
-                ], format_func=lambda x: x[0], help="Type of chest pain")
-                trestbps = st.number_input(
-                    "Resting Blood Pressure (mm Hg) (e.g. 120)",
-                    min_value=0,
-                    max_value=300,
+                sex = st.selectbox(
+                    "Sex",
+                    options=[("Male", 1), ("Female", 0)],
+                    format_func=lambda x: x[0],
+                    help="Patient sex"
+                )
+                cp = st.selectbox(
+                    "Chest Pain Type",
+                    options=[
+                        ("Typical Angina", 0),
+                        ("Atypical Angina", 1),
+                        ("Non-anginal Pain", 2),
+                        ("Asymptomatic", 3)
+                    ],
+                    format_func=lambda x: x[0],
+                    help="Type of chest pain"
+                )
+                trestbps_str = st.text_input(
+                    "Resting Blood Pressure (mm Hg)",
+                    placeholder="e.g. 120",
                     help="Resting blood pressure"
                 )
-                chol = st.number_input(
-                    "Serum Cholesterol (mg/dL) (e.g. 200)",
-                    min_value=0,
-                    max_value=600,
+                chol_str = st.text_input(
+                    "Serum Cholesterol (mg/dL)",
+                    placeholder="e.g. 200",
                     help="Serum cholesterol level"
                 )
             
             with col2:
-                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dL", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])
-                restecg = st.selectbox("Resting ECG", options=[
-                    ("Normal", 0),
-                    ("ST-T Abnormality", 1),
-                    ("LV Hypertrophy", 2)
-                ], format_func=lambda x: x[0], help="Resting electrocardiographic results")
-                thalach = st.number_input(
-                    "Max Heart Rate (e.g. 150)",
-                    min_value=0,
-                    max_value=250,
+                fbs = st.selectbox(
+                    "Fasting Blood Sugar > 120 mg/dL",
+                    options=[("No", 0), ("Yes", 1)],
+                    format_func=lambda x: x[0]
+                )
+                restecg = st.selectbox(
+                    "Resting ECG",
+                    options=[
+                        ("Normal", 0),
+                        ("ST-T Abnormality", 1),
+                        ("LV Hypertrophy", 2)
+                    ],
+                    format_func=lambda x: x[0],
+                    help="Resting electrocardiographic results"
+                )
+                thalach_str = st.text_input(
+                    "Max Heart Rate",
+                    placeholder="e.g. 150",
                     help="Maximum heart rate achieved"
                 )
-                exang = st.selectbox("Exercise Induced Angina", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])
+                exang = st.selectbox(
+                    "Exercise Induced Angina",
+                    options=[("No", 0), ("Yes", 1)],
+                    format_func=lambda x: x[0]
+                )
             
             with col3:
-                oldpeak = st.number_input(
-                    "ST Depression (e.g. 0.0)",
-                    min_value=0.0,
-                    max_value=10.0,
-                    step=0.1,
+                oldpeak_str = st.text_input(
+                    "ST Depression",
+                    placeholder="e.g. 0.0",
                     help="ST depression induced by exercise"
                 )
-                slope = st.selectbox("Slope of Peak Exercise ST", options=[
-                    ("Upsloping", 0),
-                    ("Flat", 1),
-                    ("Downsloping", 2)
-                ], format_func=lambda x: x[0])
-                ca = st.number_input(
-                    "Major Vessels (0-3) (e.g. 0)",
-                    min_value=0,
-                    max_value=3,
+                slope = st.selectbox(
+                    "Slope of Peak Exercise ST",
+                    options=[
+                        ("Upsloping", 0),
+                        ("Flat", 1),
+                        ("Downsloping", 2)
+                    ],
+                    format_func=lambda x: x[0]
+                )
+                ca_str = st.text_input(
+                    "Major Vessels (0-3)",
+                    placeholder="e.g. 0",
                     help="Number of major vessels colored by fluoroscopy"
                 )
-                thal = st.selectbox("Thalassemia", options=[
-                    ("Normal", 1),
-                    ("Fixed Defect", 2),
-                    ("Reversible Defect", 3)
-                ], format_func=lambda x: x[0])
+                thal = st.selectbox(
+                    "Thalassemia",
+                    options=[
+                        ("Normal", 1),
+                        ("Fixed Defect", 2),
+                        ("Reversible Defect", 3)
+                    ],
+                    format_func=lambda x: x[0]
+                )
             
-            # Extract values
+            submitted = st.form_submit_button("💓 Analyze Heart Health", use_container_width=True)
+        
+        if submitted:
+            # Extract categorical values
             sex_val = sex[1]
             cp_val = cp[1]
             fbs_val = fbs[1]
@@ -801,6 +917,18 @@ def main():
             exang_val = exang[1]
             slope_val = slope[1]
             thal_val = thal[1]
+
+            # Parse numeric fields
+            try:
+                age = parse_int_input("Age (years)", age_str, 1, 120)
+                trestbps = parse_int_input("Resting Blood Pressure (mm Hg)", trestbps_str, 0, 300)
+                chol = parse_int_input("Serum Cholesterol (mg/dL)", chol_str, 0, 600)
+                thalach = parse_int_input("Max Heart Rate", thalach_str, 0, 250)
+                oldpeak = parse_float_input("ST Depression", oldpeak_str, 0.0, 10.0)
+                ca = parse_int_input("Major Vessels (0-3)", ca_str, 0, 3)
+            except ValueError as e:
+                st.error(str(e))
+                st.stop()
             
             # Engineered features (auto-calculated)
             age_chol = age * chol
@@ -820,9 +948,6 @@ def main():
             else:
                 age_group = 3
             
-            submitted = st.form_submit_button("💓 Analyze Heart Health", use_container_width=True)
-        
-        if submitted:
             # Prepare input data
             input_data = {
                 'age': age,
@@ -909,6 +1034,22 @@ def main():
                 These cardiovascular factors had the most significant impact on the prediction. Medical attention should focus on these areas.
             </div>
             """, unsafe_allow_html=True)
+
+            # -------- DOWNLOAD REPORT BUTTON (HEART) --------
+            st.markdown("### 📥 Download Detailed Heart Disease Report")
+            heart_report = build_prediction_report(
+                disease_name="Heart Disease",
+                input_data=input_data,
+                result=result,
+                labels=["No CVD", "CVD"]
+            )
+            st.download_button(
+                label="Download Heart Disease Report (.txt)",
+                data=heart_report,
+                file_name=f"medriba_heart_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+                mime="text/plain",
+                use_container_width=True
+            )
     
     # ===========================
     # ABOUT MODELS PAGE
@@ -1077,7 +1218,6 @@ def main():
             st.success("✅ All research guidelines successfully implemented!")
     
     # Footer
-    
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; color: #64748b; padding: 2rem;">
@@ -1091,6 +1231,7 @@ def main():
         </p>
     </div>
     """, unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main()
